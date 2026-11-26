@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { InstallInstructions } from '../Install';
 import PasswordCard from '../../components/PasswordCard';
+import PushCard from '../../components/PushCard';
 import { Button } from '../../components/ui/Button';
 import { PageHeader, Section } from '../../components/ui/Misc';
 import { formatDateBR, ageFrom } from '../../utils/format';
@@ -28,6 +29,7 @@ export default function Account() {
         <p className="mt-3 text-xs text-gray-500">Para corrigir seus dados cadastrais, fale com o seu professor.</p>
       </Section>
       <Section title="Aparência"><Button variant="secondary" onClick={toggle}>Tema: {theme === 'dark' ? 'escuro' : 'claro'} (alternar)</Button></Section>
+      <PushCard />
       <PasswordCard />
       <Section title="Instalar como aplicativo"><InstallInstructions /></Section>
       <Button variant="secondary" onClick={() => void signOut()}><LogOut size={16} /> Sair da conta</Button>

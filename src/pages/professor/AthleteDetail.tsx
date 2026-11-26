@@ -15,6 +15,7 @@ import type { Workout, WorkoutLog, ResultRow } from '../../types';
 import WorkoutForm from '../../components/WorkoutForm';
 import { WorkoutDetails } from '../../components/WorkoutCard';
 import ResultForm from '../../components/ResultForm';
+import PlanPanel from '../../components/PlanPanel';
 import TafPanel from '../../components/TafPanel';
 import AthleteReport from '../../components/AthleteReport';
 import Conversation from '../../components/Conversation';
@@ -24,9 +25,10 @@ import { Field } from '../../components/ui/Field';
 import { Modal } from '../../components/ui/Modal';
 import { Badge, DemoBadge, EmptyState, ErrorBox, Section, Spinner } from '../../components/ui/Misc';
 
-type Tab = 'treinos' | 'resultados' | 'taf' | 'relatorio' | 'mensagens';
+type Tab = 'treinos' | 'plano' | 'resultados' | 'taf' | 'relatorio' | 'mensagens';
 const TABS: { id: Tab; label: string }[] = [
   { id: 'treinos', label: 'Treinos' },
+  { id: 'plano', label: 'Plano (PDF)' },
   { id: 'resultados', label: 'Marcas e provas' },
   { id: 'taf', label: 'TAF' },
   { id: 'relatorio', label: 'Relatório' },
@@ -87,6 +89,7 @@ export default function AthleteDetail() {
       </div>
 
       {tab === 'treinos' && <TrainingTab athleteId={a.id} professorId={professorId} />}
+      {tab === 'plano' && <PlanPanel athleteId={a.id} professorId={professorId} />}
       {tab === 'resultados' && <ResultsTab athleteId={a.id} professorId={professorId} />}
       {tab === 'taf' && <Section title="Preparação para TAF"><TafPanel athleteId={a.id} professorId={professorId} canEdit /></Section>}
       {tab === 'relatorio' && <AthleteReport athleteId={a.id} athleteName={a.full_name} />}

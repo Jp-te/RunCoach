@@ -8,7 +8,7 @@ export const homeFor = (role: Role) => (role === 'professor' ? '/professor' : '/
 
 /** Exige login e papel. A proteção real está no RLS; aqui é só navegação. */
 export function RequireRole({ role }: { role: Role }) {
-  const { session, profile, loading, signOut } = useAuth();
+  const { session, profile, athlete, loading, signOut } = useAuth();
 
   if (loading) return <Spinner />;
   if (!session) return <Navigate to="/login" replace />;
@@ -23,6 +23,16 @@ export function RequireRole({ role }: { role: Role }) {
       </div>
     );
   if (profile.role !== role) return <Navigate to={homeFor(profile.role)} replace />;
+  if (role === 'atleta' && athlete?.status === 'inativo')
+    return (
+      <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-3 p-6 text-center">
+        <h1 className="text-xl font-bold">Acesso pausado</h1>
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          O seu cadastro está inativo. Fale com o seu professor para reativar o acesso aos treinos.
+        </p>
+        <Button onClick={() => void signOut()}>Sair</Button>
+      </div>
+    );
   return <Outlet />;
 }
 

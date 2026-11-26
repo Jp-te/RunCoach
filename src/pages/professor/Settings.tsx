@@ -14,6 +14,7 @@ import { MODALITY_KINDS } from '../../utils/constants';
 import { distanceToMeters, formatDistance } from '../../utils/format';
 import { InstallInstructions } from '../Install';
 import PasswordCard from '../../components/PasswordCard';
+import PushCard from '../../components/PushCard';
 import { Button } from '../../components/ui/Button';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { Field } from '../../components/ui/Field';
@@ -144,6 +145,7 @@ export default function Settings() {
         </div>
       </Section>
 
+      <PushCard />
       <PasswordCard />
 
       <Section title="Instalar como aplicativo"><InstallInstructions /></Section>

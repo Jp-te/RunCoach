@@ -37,6 +37,7 @@ export interface Athlete {
   goals: string | null;
   experience_level: Experience | null;
   status: 'ativo' | 'inativo';
+  game_enabled?: boolean;
   is_demo: boolean;
   created_at: string;
 }

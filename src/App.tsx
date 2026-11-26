@@ -28,6 +28,7 @@ const ProfessorCalendar = lazy(() => import('./pages/professor/CalendarPage'));
 const Today = lazy(() => import('./pages/athlete/Today'));
 const MyWorkouts = lazy(() => import('./pages/athlete/MyWorkouts'));
 const Progress = lazy(() => import('./pages/athlete/Progress'));
+const MyPlan = lazy(() => import('./pages/athlete/MyPlan'));
 const MyTaf = lazy(() => import('./pages/athlete/MyTaf'));
 const AthleteCalendar = lazy(() => import('./pages/athlete/CalendarPage'));
 const AthleteMessages = lazy(() => import('./pages/athlete/Messages'));
@@ -70,6 +71,7 @@ export default function App() {
             <Route index element={<Today />} />
             <Route path="treinos" element={<MyWorkouts />} />
             <Route path="evolucao" element={<Progress />} />
+            <Route path="plano" element={<MyPlan />} />
             <Route path="taf" element={<MyTaf />} />
             <Route path="calendario" element={<AthleteCalendar />} />
             <Route path="mensagens" element={<AthleteMessages />} />

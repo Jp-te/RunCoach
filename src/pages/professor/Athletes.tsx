@@ -133,7 +133,7 @@ export default function Athletes() {
       <ConfirmDialog
         open={deleting !== null}
         title="Excluir atleta"
-        message={`Excluir "${deleting?.full_name}" apaga também treinos, registros, resultados e mensagens dele. Esta ação não pode ser desfeita. Para apenas pausar o atleta, use a situação "Inativo".`}
+        message={`Excluir "${deleting?.full_name}" apaga também treinos, registros, resultados, mensagens e o login dele. Esta ação não pode ser desfeita. Para apenas pausar o atleta (ele perde o acesso, mas os dados ficam), use a situação "Inativo".`}
         onClose={() => setDeleting(null)}
         onConfirm={async () => {
           try {

@@ -39,7 +39,7 @@ export async function saveAthlete(professorId: string, input: AthleteInput, note
 }
 
 export async function deleteAthlete(id: string): Promise<void> {
-  unwrap(await supabase.from('athletes').delete().eq('id', id));
+  unwrap(await supabase.rpc('delete_athlete_account', { p_athlete_id: id }));
 }
 
 export async function deleteDemoAthletes(): Promise<void> {

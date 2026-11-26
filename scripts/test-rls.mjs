@@ -56,12 +56,12 @@ await db.exec(`
   alter default privileges in schema public grant all on tables to anon, authenticated;
 `);
 
-for (const f of ['001_schema.sql', '002_functions_triggers.sql', '003_rls.sql']) {
+for (const f of ['001_schema.sql', '002_functions_triggers.sql', '003_rls.sql', '004_training_plans.sql', '005_acesso_e_push.sql']) {
   await db.exec(readFileSync(join(dir, f), 'utf8'));
   console.log('Aplicado', f);
 }
 // idempotência: reaplica tudo
-for (const f of ['001_schema.sql', '002_functions_triggers.sql', '003_rls.sql']) {
+for (const f of ['001_schema.sql', '002_functions_triggers.sql', '003_rls.sql', '004_training_plans.sql', '005_acesso_e_push.sql']) {
   await db.exec(readFileSync(join(dir, f), 'utf8'));
 }
 ok('migrations são idempotentes (rodaram 2x)');
@@ -182,6 +182,50 @@ await expectError('A1 não envia como "orientacao"',
 await expectError('A1 não altera texto de mensagem',
   `update public.messages set body='alterado' where kind='notificacao'`);
 await expectOk('A1 marca mensagem como lida', `update public.messages set read_at=now() where kind='notificacao'`);
+
+console.log('\nPlanos de treino importados');
+await as(P1);
+await expectOk('P1 salva plano para seu atleta',
+  `insert into public.training_plans(professor_id,athlete_id,title,data) values ('${P1}','${AT1}','Plano X','{"version":1}')`);
+await expectError('P1 não salva plano para atleta do P2',
+  `insert into public.training_plans(professor_id,athlete_id,title,data) values ('${P1}','${AT3}','Plano Y','{"version":1}')`);
+await as(A1);
+await expectRows('A1 lê o próprio plano', `select 1 from public.training_plans`, 1);
+await expectError('A1 não cria plano', `insert into public.training_plans(professor_id,athlete_id,title,data) values ('${P1}','${AT1}','hack','{}')`);
+await expectRows('A1 não altera plano (0 linhas)', `update public.training_plans set title='hack' returning 1`, 0);
+await expectRows('A1 não apaga plano (0 linhas)', `delete from public.training_plans returning 1`, 0);
+await as(A2);
+await expectRows('A2 não vê plano do A1', `select 1 from public.training_plans`, 0);
+await as(P2);
+await expectRows('P2 não vê plano do P1', `select 1 from public.training_plans`, 0);
+
+console.log('\nAtleta inativo, exclusão de conta e push');
+await as(A1);
+await expectOk('A1 (ativo) cria assinatura push própria',
+  `insert into public.push_subscriptions(user_id,endpoint,p256dh,auth) values ('${A1}','https://push.example/1','k','a')`);
+await expectError('A1 não cria assinatura para outro usuário',
+  `insert into public.push_subscriptions(user_id,endpoint,p256dh,auth) values ('${A2}','https://push.example/2','k','a')`);
+await as(A2);
+await expectRows('A2 não vê a assinatura do A1', `select 1 from public.push_subscriptions`, 0);
+await as(P1);
+await expectOk('P1 marca atleta A1 como inativo', `update public.athletes set status='inativo' where id='${AT1}'`);
+await as(A1);
+await expectRows('A1 inativo não vê treinos', `select 1 from public.workouts`, 0);
+await expectRows('A1 inativo não vê planos', `select 1 from public.training_plans`, 0);
+await expectRows('A1 inativo ainda vê o próprio cadastro (para mostrar aviso)', `select 1 from public.athletes`, 1);
+await as(P1);
+await expectOk('P1 reativa A1', `update public.athletes set status='ativo' where id='${AT1}'`);
+await as(P2);
+await expectError('P2 não exclui atleta do P1', `select public.delete_athlete_account('${AT1}')`);
+await as(A1);
+await expectError('Atleta não chama exclusão de conta', `select public.delete_athlete_account('${AT1}')`);
+await as(P1);
+await expectOk('P1 exclui atleta A1 (dados + login)', `select public.delete_athlete_account('${AT1}')`);
+await db.exec('reset role');
+await expectRows('usuário de login do A1 foi removido', `select 1 from auth.users where id='${A1}'`, 0);
+await expectRows('atleta A1 foi removido', `select 1 from public.athletes where id='${AT1}'`, 0);
+await expectRows('assinaturas push do A1 removidas junto', `select 1 from public.push_subscriptions where user_id='${A1}'`, 0);
+await expectRows('conta do professor P1 permanece', `select 1 from auth.users where id='${P1}'`, 1);
 
 await db.exec('reset role');
 console.log(failures === 0 ? '\nTODOS OS TESTES PASSARAM' : `\n${failures} FALHA(S)`);

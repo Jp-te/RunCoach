@@ -8,7 +8,7 @@
  *  - Atualização segura: a nova versão fica em "waiting" até o usuário aceitar
  *    (mensagem SKIP_WAITING enviada pelo app), evitando trocar o app no meio de um uso.
  */
-const VERSION = 'runcoach-v1';
+const VERSION = 'runcoach-v2';
 const CORE = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -65,6 +65,41 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => cached);
       return cached || network;
+    })
+  );
+});
+
+// ---------- Notificações push ----------
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { body: event.data ? event.data.text() : '' };
+  }
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'RunCoach', {
+      body: data.body || 'Você tem uma novidade no RunCoach.',
+      icon: './icons/icon-192.png',
+      badge: './icons/icon-192.png',
+      tag: data.tag || 'runcoach',
+      data: { url: data.url || './' },
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const target = new URL((event.notification.data && event.notification.data.url) || './', self.registration.scope).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      for (const c of list) {
+        if (c.url.startsWith(self.registration.scope) && 'focus' in c) {
+          c.navigate(target).catch(() => undefined);
+          return c.focus();
+        }
+      }
+      return self.clients.openWindow(target);
     })
   );
 });

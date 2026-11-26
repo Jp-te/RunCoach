@@ -13,7 +13,11 @@ Menu lateral esquerdo → **SQL Editor** → **New query** → cole o conteúdo 
 | 1 | `supabase/migrations/001_schema.sql` | Tabelas, relacionamentos, índices |
 | 2 | `supabase/migrations/002_functions_triggers.sql` | Funções, triggers (cadastro controlado, proteção de privilégios, `assign_sheet`, `copy_week`) |
 | 3 | `supabase/migrations/003_rls.sql` | Liga o RLS em todas as tabelas e cria as políticas |
+| 4 | `supabase/migrations/004_training_plans.sql` | Tabela dos planos importados de PDF (com RLS) |
+| 5 | `supabase/migrations/005_acesso_e_push.sql` | Atleta inativo sem acesso, exclusão completa de atleta, tabela de push |
 | (opcional) | `supabase/seed_demo.sql` | Dados **fictícios** de exemplo (rode só depois de criar sua conta de professor) |
+
+> Já rodou 001–003 antes? Rode apenas o **004** e o **005** (é independente e seguro de repetir).
 
 Cada um deve terminar com **"Success. No rows returned"**. Os scripts são idempotentes: se der erro no meio, corrija e rode de novo.
 
@@ -61,7 +65,7 @@ Ela é pública por design: a proteção dos dados é feita pelo RLS. **Nunca** 
 ## 6. Conferir a segurança
 
 - **Table Editor**: todas as tabelas devem mostrar o selo **RLS enabled**.
-- **Authentication → Users**: lista dos usuários criados. Para remover o acesso de alguém, apague o usuário aqui (excluir um atleta no app apaga os dados dele, mas não o usuário de login).
+- **Authentication → Users**: lista dos usuários criados. Excluir um atleta no app já apaga também o login dele; para só pausar, use a situação "Inativo".
 - **Database → Advisors → Security**: não deve apontar tabelas sem RLS.
 
 ## 7. Testar as regras de segurança por conta própria
